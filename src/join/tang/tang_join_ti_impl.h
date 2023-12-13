@@ -125,6 +125,76 @@ void TangJoinTI<Label, VerificationAlgorithm>::retrieve_candidates(
   }
 }
 
+
+template <typename Label, typename VerificationAlgorithm>
+void TangJoinTI<Label, VerificationAlgorithm>::retrieve_candidates(
+        std::vector<node::BinaryNode<Label>>& binary_trees_collection,
+        std::unordered_set<std::pair<int, int>, hashintegerpair>& candidates,
+        const double distance_threshold,
+        std::vector<std::chrono::microseconds> & ted_times
+        ) {
+
+    // initialize inverted list index I of subgraphs
+    // -> pointer to root of subtree?
+    std::unordered_map<int, std::vector<int>> small_trees;
+    // number of subgraphs, we want to achieve
+    int delta = 2 * distance_threshold + 1;
+
+    // for all trees in binary_trees_collection
+    for(std::size_t curr_binary_tree_id = 0; curr_binary_tree_id < binary_trees_collection.size();
+        ++curr_binary_tree_id) {
+        auto start = std::chrono::high_resolution_clock::now();
+        int curr_tree_size = binary_trees_collection[curr_binary_tree_id].get_tree_size();
+
+        // get all nodes of the actual
+        std::vector<node::BinaryNode<Label>*> nodes_in_postorder;
+        binary_trees_collection[curr_binary_tree_id].get_node_postorder_vector(nodes_in_postorder);
+
+        // only look at trees with size in the threshold range -> for n in max(|T_i| - tau, 1), |T_i|)
+        for(int n = std::max(1, curr_tree_size - (int)distance_threshold); n <= curr_tree_size; ++n) {
+            // traverse actual tree in postorder
+            for(std::size_t curr_node_postorder_id = 0; curr_node_postorder_id < nodes_in_postorder.size();
+                ++curr_node_postorder_id) {
+                // S contains trees T_j that contain the relevant subgraphs s_j  -> S = getSubgraphs(T_i, N)
+                std::vector<int> S;
+                get_subgraphs(nodes_in_postorder[curr_node_postorder_id], n, curr_node_postorder_id, S);
+
+                // for each T_j (T_j .. tree that owns s) in S
+                for(int T_j: S)
+                    // add(T_i, T_j) to candidates, join candidates is an unordered set,
+                    // therefore, no worries about duplicates
+                    candidates.emplace(curr_binary_tree_id, T_j);
+            }
+
+            // FIX: add all pairs with small trees
+            for(int T_j: small_trees[n])
+                candidates.emplace(curr_binary_tree_id, T_j);
+        }
+
+        // FIX: keep track of small trees, which cannot be partitioned with the given threshold
+        if(curr_tree_size < delta)
+            small_trees[curr_tree_size].push_back(curr_binary_tree_id);
+        else {
+            // g = MAXMINSIZE(T_i, 2*tau + 1)
+            // maximal number of nodes within a subgraph
+            int gamma = max_min_size(&binary_trees_collection[curr_binary_tree_id],
+                                     curr_tree_size, delta);
+
+            // S' = PARTITION(T_i, 2*tau + 1, g)
+            // for each s in S'
+            // insert s into inverted list index I_T_i
+            int postorder_id = 0;
+            int subgraph_id = 0;
+            update_inverted_list(&binary_trees_collection[curr_binary_tree_id], delta, gamma,
+                                 curr_tree_size, curr_binary_tree_id, postorder_id, subgraph_id, distance_threshold);
+        }
+        auto total_filter_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
+        ted_times.emplace_back(total_filter_time);
+
+    }
+}
+
+
 template <typename Label, typename VerificationAlgorithm>
 void TangJoinTI<Label, VerificationAlgorithm>::get_subgraphs(
     node::BinaryNode<Label>* curr_node, int tree_size, 

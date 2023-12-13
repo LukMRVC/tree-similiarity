@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
+#include <chrono>
 #include "../join_result_element.h"
 #include "../../node/node.h"
 #include "binary_tree_converter.h"
@@ -99,6 +100,13 @@ public:
       std::vector<node::BinaryNode<Label>>& binary_trees_collection,
       std::unordered_set<std::pair<int, int>, hashintegerpair>& candidates,
       const double distance_threshold);
+
+    void retrieve_candidates(
+    std::vector<node::BinaryNode<Label>>& binary_trees_collection,
+    std::unordered_set<std::pair<int, int>, hashintegerpair>& candidates,
+    const double distance_threshold,
+    std::vector<std::chrono::microseconds> & ted_times
+    );
   /// Verify for each candidate pair in candidates if the tree edit
   /// distance is below a certain distance_threshold.
   ///

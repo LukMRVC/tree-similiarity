@@ -83,6 +83,26 @@ void TJoinTI<Label, VerificationAlgorithm>::retrieve_candidates(
 }
 
 template <typename Label, typename VerificationAlgorithm>
+void TJoinTI<Label, VerificationAlgorithm>::retrieve_candidates(
+        std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
+std::vector<std::pair<int, int>>& candidates,
+const double distance_threshold,
+std::vector<std::chrono::microseconds> & ted_times
+) {
+
+// Initialize candidate index.
+candidate_index::CandidateIndex c_index;
+
+// Retrieve candidates from the candidate index.
+c_index.lookup(sets_collection, candidates, number_of_labels_, distance_threshold, ted_times);
+
+// Copy the number of pre-candidates.
+pre_candidates_ = c_index.get_number_of_pre_candidates();
+// Copy the number of inverted list lookups.
+il_lookups_ = c_index.get_number_of_il_lookups();
+}
+
+template <typename Label, typename VerificationAlgorithm>
 void TJoinTI<Label, VerificationAlgorithm>::upperbound(
     std::vector<node::Node<Label>>& trees_collection,
     std::vector<std::pair<int, int>>& candidates,

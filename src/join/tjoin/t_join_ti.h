@@ -23,6 +23,7 @@
 
 #include <vector>
 #include <functional>
+#include <chrono>
 #include "../join_result_element.h"
 #include "../../node/node.h"
 #include "../../ted_ub/lgm_tree_index.h"
@@ -94,6 +95,13 @@ public:
       std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
       std::vector<std::pair<int, int>>& candidates,
       const double distance_threshold);
+
+    void retrieve_candidates(
+            std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
+            std::vector<std::pair<int, int>>& candidates,
+            const double distance_threshold,
+            std::vector<std::chrono::microseconds> & ted_times
+            );
   /// Verifies candidates using Label Guided Mapping upper bound (LGM).
   /**
    * \param trees_collection A vector holding an input collection of trees.

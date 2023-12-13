@@ -33,6 +33,122 @@ CandidateIndex::CandidateIndex() {
 }
 
 void CandidateIndex::lookup(
+        std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
+std::vector<std::pair<int, int>>& join_candidates,
+const int number_of_labels,
+const double distance_threshold,
+std::vector<std::chrono::microseconds>& ted_times
+) {
+    // inverted list index.
+    std::vector<candidate_index::InvertedListElement> il_index(number_of_labels);
+    // containing specific data of a set. (e.g. actual overlap, index prefix)
+    std::vector<candidate_index::SetData> set_data(sets_collection.size());
+    // position in label set while processing r
+    std::size_t p = 0;
+
+    // iterate through all sets in the given collection
+    std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>::iterator r_it = sets_collection.begin();
+    for (; r_it != sets_collection.end(); ++r_it) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        std::pair<int, std::vector<label_set_converter::LabelSetElement>>& r_pair = *r_it; // dereference iterator to current set once
+        std::vector<label_set_converter::LabelSetElement> r = r_pair.second; // dereference iterator to current set once
+        int r_id = r_it - sets_collection.begin(); // identifier for r (line number)
+        std::vector<int> M; // holds the set identifiers of the candidate pairs,
+        // the overlap is stored in the set_data
+        int r_size = sets_collection[r_id].first; // number of elements in r
+
+        // *****************************
+        // ** Generate pre candidates **
+        // *****************************
+        // add all small trees that does not have to share a common label in the prefix
+        if(r_size <= distance_threshold)
+            for(int i = 0; i < r_id; ++i) {
+            if(set_data[i].overlap == 0)
+                M.push_back(i); // if not, add it to the candidate set M
+            ++set_data[i].overlap; // increase overlap for set i
+        }
+
+        // iterate through probing prefix elements and extend the candidate set
+        p = 0;
+        // until tau + 1 nodes of the probing set are processed
+        while(p < r.size()) {
+            // remove all entries in the inverted list index up to the position where
+            // the size is greater than the lower bound
+            for(std::size_t s = il_index[r[p].id].offset; s < il_index[r[p].id].element_list.size() &&
+            sets_collection[il_index[r[p].id].element_list[s].first].first < r_size - distance_threshold; s++)
+                ++il_index[r[p].id].offset;
+
+            // iterate through all remaining sets for the current token r[p] in the
+            // inverted list index and add them to the candidates
+            for(std::size_t s = il_index[r[p].id].offset; s < il_index[r[p].id].element_list.size(); s++) {
+                int set = il_index[r[p].id].element_list[s].first;
+                int pos = il_index[r[p].id].element_list[s].second;
+                // increase the number of lookups in the inverted list
+                ++il_lookups_;
+
+                int tau_valid = structural_mapping(r[p], sets_collection[set].second[pos], distance_threshold);
+                if(tau_valid != 0 && set_data[set].overlap == 0)
+                    M.push_back(set); // if not, add it to the candidate set M
+
+                    set_data[set].overlap += tau_valid;
+            }
+            // stop as soon as tau + 1 elements have been discovered
+            p++;
+            if(r[p-1].weight_so_far > distance_threshold + 1)
+                break;
+        }
+
+        // store last postition of the index of the label set
+        set_data[r_id].prefix = p;
+        // count number of precandidates
+        pre_candidates_ += M.size();
+
+        // add all elements in the prefix of r in the inverted list
+        for(int p = 0; p < set_data[r_id].prefix; p++)
+            il_index[r[p].id].element_list.push_back(std::make_pair(r_id, p));
+
+        // *****************************
+        // *** Verify pre candidates ***
+        // *****************************
+        // compute structural filter for each candidate (r, s) in M
+        for (int m: M) {
+
+            std::vector<label_set_converter::LabelSetElement>& s = sets_collection[m].second;
+            // prefix positions for sets r and s in the candidate pair
+            std::size_t pr = 0, ps = 0;
+
+            // check last prefix position; the smaller one starts at prefix position,
+            // the greater one starts at the overlap
+            if (r[set_data[r_id].prefix-1].id > s[set_data[m].prefix-1].id) {
+                for(; r[pr].weight_so_far < set_data[m].overlap && pr < r.size(); ++pr) {}
+                ++pr;
+                ps = set_data[m].prefix;
+            } else {
+                pr = set_data[r_id].prefix;
+                for(; s[ps].weight_so_far < set_data[m].overlap && ps < s.size(); ++ps) {}
+                ++ps;
+            }
+
+            int maxr = r_size - r[pr-1].weight_so_far + set_data[m].overlap;
+            int maxs = sets_collection[m].first - s[ps-1].weight_so_far + set_data[m].overlap;
+
+            // overlap needed for threshold tau between r and s
+            const double eqoverlap = r_size - distance_threshold;
+
+            // verify if r and s belong to the resultset, computed the structural filter
+            if (structural_filter(r, s, eqoverlap, set_data[m].overlap, pr, ps, distance_threshold, maxr, maxs))
+                join_candidates.emplace_back(r_id, m);
+
+            // reset overlap in set_data
+            set_data[m].overlap = 0;
+        }
+        auto filter_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
+        ted_times.emplace_back(filter_time);
+    }
+}
+
+void CandidateIndex::lookup(
     std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
     std::vector<std::pair<int, int>>& join_candidates,
     const int number_of_labels, 

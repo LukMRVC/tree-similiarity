@@ -32,6 +32,7 @@
 #include <climits>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 #include <unordered_map>
 #include "../../node/node.h"
 
@@ -57,6 +58,15 @@ public:
       std::vector<std::pair<int, int>>& join_candidates,
       const int il_size,
       const double distance_threshold);
+
+    void lookup(
+            std::vector<std::pair<int, std::unordered_map<int, int>>>& label_histogram_collection,
+    std::vector<std::pair<int, std::unordered_map<int, int>>>& degree_histogram_collection,
+    std::vector<std::pair<int, std::unordered_map<int, int>>>& leaf_distance_histogram_collection,
+    std::vector<std::pair<int, int>>& join_candidates,
+    const int il_size,
+    const double distance_threshold,
+    std::vector<std::chrono::microseconds> & ted_times);
   /// Returns the number of precandidates.
   ///
   /// \return The number of precandidates.

@@ -33,6 +33,7 @@
 #include <climits>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 #include <unordered_map>
 #include "../../node/node.h"
 
@@ -43,7 +44,19 @@ class CandidateIndex {
 public:
   /// Constructor.
   CandidateIndex();
-  /// Returns a set of candidates that satisfy the binary branch lower bound. 
+        /// Returns a set of candidates that satisfy the binary branch lower bound.
+        ///
+        /// \param histogram_collection Collection of all histograms.
+        /// \param join_candidates Resultset that contains all join candidates.
+        /// \param il_size Size of the inverted list.
+        /// \param distance_threshold Given distance threshold.
+        void lookup(
+                std::vector<std::pair<int, std::unordered_map<int, int>>>& histogram_collection,
+        std::vector<std::pair<int, int>>& join_candidates,
+        const int il_size,
+        const double distance_threshold);
+
+  /// Returns a set of candidates that satisfy the binary branch lower bound.
   ///
   /// \param histogram_collection Collection of all histograms.
   /// \param join_candidates Resultset that contains all join candidates.
@@ -53,7 +66,8 @@ public:
       std::vector<std::pair<int, std::unordered_map<int, int>>>& histogram_collection,
       std::vector<std::pair<int, int>>& join_candidates,
       const int il_size,
-      const double distance_threshold);
+      const double distance_threshold,
+      std::vector<std::chrono::microseconds> & ted_times);
   /// Returns the number of precandidates.
   ///
   /// \return The number of precandidates.

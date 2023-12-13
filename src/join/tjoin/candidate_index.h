@@ -33,6 +33,7 @@
 #include <vector>
 #include <unordered_map>
 #include <queue>
+#include <chrono>
 #include "../../node/node.h"
 #include "inverted_list_element.h"
 #include "set_data.h"
@@ -45,6 +46,19 @@ class CandidateIndex {
 public:
   /// Constructor.
   CandidateIndex();
+    /// Returns a set of candidates that satisfy the structural filter.
+    ///
+    /// \param sets_collection Collection of all sets.
+    /// \param join_candidates Resultset that contains all join candidates.
+    /// \param number_of_labels Number of all different labels in all sets.
+    ///        Needed to allocate the inverted list index.
+    /// \param distance_threshold Given similarity threshold.
+    void lookup(
+            std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
+    std::vector<std::pair<int, int>>& join_candidates,
+    const int number_of_labels,
+    const double distance_threshold);
+
   /// Returns a set of candidates that satisfy the structural filter. 
   ///
   /// \param sets_collection Collection of all sets.
@@ -56,7 +70,9 @@ public:
       std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
       std::vector<std::pair<int, int>>& join_candidates,
       const int number_of_labels, 
-      const double distance_threshold);
+      const double distance_threshold,
+      std::vector<std::chrono::microseconds> & ted_times
+      );
   /// Returns the resultset.
   ///
   /// \return Pairs in the resultset.
