@@ -67,7 +67,7 @@ public:
       std::vector<std::pair<int, int>>& join_candidates,
       const int il_size,
       const double distance_threshold,
-      std::vector<std::chrono::microseconds> & ted_times);
+      std::vector<std::chrono::nanoseconds> & ted_times);
   /// Returns the number of precandidates.
   ///
   /// \return The number of precandidates.

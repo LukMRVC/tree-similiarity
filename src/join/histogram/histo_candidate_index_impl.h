@@ -120,7 +120,7 @@ void CandidateIndex::lookup(
     std::vector<std::pair<int, int>>& join_candidates,
     const int il_size,
     const double distance_threshold,
-    std::vector<std::chrono::microseconds> & ted_times
+    std::vector<std::chrono::nanoseconds> & ted_times
 ) {
     // inverted list index
     std::vector<std::vector<std::pair<int, int>>> il_index(il_size+1);

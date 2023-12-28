@@ -71,7 +71,7 @@ public:
       std::vector<std::pair<int, int>>& join_candidates,
       const int number_of_labels, 
       const double distance_threshold,
-      std::vector<std::chrono::microseconds> & ted_times
+      std::vector<std::chrono::nanoseconds> & ted_times
       );
   /// Returns the resultset.
   ///

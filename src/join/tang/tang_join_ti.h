@@ -105,7 +105,7 @@ public:
     std::vector<node::BinaryNode<Label>>& binary_trees_collection,
     std::unordered_set<std::pair<int, int>, hashintegerpair>& candidates,
     const double distance_threshold,
-    std::vector<std::chrono::microseconds> & ted_times
+    std::vector<std::chrono::nanoseconds> & ted_times
     );
   /// Verify for each candidate pair in candidates if the tree edit
   /// distance is below a certain distance_threshold.

@@ -131,7 +131,7 @@ void TangJoinTI<Label, VerificationAlgorithm>::retrieve_candidates(
         std::vector<node::BinaryNode<Label>>& binary_trees_collection,
         std::unordered_set<std::pair<int, int>, hashintegerpair>& candidates,
         const double distance_threshold,
-        std::vector<std::chrono::microseconds> & ted_times
+        std::vector<std::chrono::nanoseconds> & ted_times
         ) {
 
     // initialize inverted list index I of subgraphs
