@@ -120,7 +120,7 @@ void CandidateIndex::lookup(
     std::vector<std::pair<int, int>>& join_candidates,
     const int il_size,
     const double distance_threshold,
-    std::vector<std::chrono::nanoseconds> & ted_times
+    std::vector<std::chrono::microseconds> & ted_times
 ) {
     // inverted list index
     std::vector<std::vector<std::pair<int, int>>> il_index(il_size+1);
@@ -167,14 +167,13 @@ void CandidateIndex::lookup(
             // reset intersection counter
             intersection_cnt[pre_cand_id] = 0;
         }
-        auto filter_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
+        auto filter_time = std::chrono::duration_cast<std::chrono::microseconds >(std::chrono::high_resolution_clock::now() - start);
         ted_times.emplace_back(filter_time);
         current_tree_id++;
     }
 
     // apply degree and leaf distance lower bound for all candidates
     auto cand = std::begin(join_candidates);
-    auto filter_time = std::begin(ted_times);
     while(cand != std::end(join_candidates)) {
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -199,8 +198,7 @@ void CandidateIndex::lookup(
             break;
         }
         // add the degree and leaf distance intersection to the current tree filter time
-        *filter_time += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
-        filter_time++;
+        ted_times[(*cand).first] += std::chrono::duration_cast<std::chrono::microseconds >(std::chrono::high_resolution_clock::now() - start);
         cand++;
     }
 }

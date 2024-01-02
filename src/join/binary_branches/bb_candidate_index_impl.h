@@ -97,7 +97,7 @@ void CandidateIndex::lookup(
     std::vector<std::pair<int, int>>& join_candidates,
     const int il_size,
     const double distance_threshold,
-    std::vector<std::chrono::nanoseconds> & ted_times
+    std::vector<std::chrono::microseconds> & ted_times
     ) {
   // inverted list index
   std::vector<std::vector<std::pair<int, int>>> il_index(il_size+1);
@@ -147,7 +147,7 @@ void CandidateIndex::lookup(
       // reset intersection counter
       intersection_cnt[pre_cand_id] = 0;
     }
-    auto total_filter_time = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start);
+    auto total_filter_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
     ted_times.emplace_back(total_filter_time);
     current_tree_id++;
   }

@@ -100,7 +100,7 @@ public:
             std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>& sets_collection,
             std::vector<std::pair<int, int>>& candidates,
             const double distance_threshold,
-            std::vector<std::chrono::nanoseconds> & ted_times
+            std::vector<std::chrono::microseconds> & ted_times
             );
   /// Verifies candidates using Label Guided Mapping upper bound (LGM).
   /**
