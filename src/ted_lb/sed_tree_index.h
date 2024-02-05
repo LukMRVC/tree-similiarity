@@ -50,7 +50,7 @@ class SEDTreeIndex : public ted::TEDAlgorithm<CostModel, TreeIndex>{
 public:
   /// Implements ted function from the TEDAlgorithm<CostModel, TreeIndex> class.
   double ted(const TreeIndex& t1, const TreeIndex& t2);
-
+  double ted_k(const  TreeIndex& t1, const TreeIndex& t2, int64_t k);
 };
 
 // Implementation details.
