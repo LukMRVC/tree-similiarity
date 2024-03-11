@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 template<typename Label>
 Converter<Label>::Converter() {}
 
