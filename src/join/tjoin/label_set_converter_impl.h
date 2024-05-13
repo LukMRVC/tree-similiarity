@@ -60,20 +60,23 @@ void Converter<Label>::assignFrequencyIdentifiers(
     actual_pre_order_number_ = 0;
     actual_depth_ = 0;
 
-    for (const auto& it : record_labels) 
-      record.emplace_back(it.second);
+    for (const auto& it : record_labels) {
+        record.emplace_back(it.second);
+    }
 
     // add to vector of label sets
     sets_collection.emplace_back(tree_size, record);
   }
 
   // token_count_list = [tokenfrequency, tokenid]
-  for(int i = 0; i < next_token_id_; ++i)
-    token_count_list.emplace_back(0, i);
-  for(const auto& record: sets_collection)
-    for(const auto& token: record.second)
-      token_count_list[token.id].first += token.weight;
-
+  for(int i = 0; i < next_token_id_; ++i) {
+      token_count_list.emplace_back(0, i);
+  }
+  for(const auto& record: sets_collection) {
+      for (const auto &token: record.second) {
+          token_count_list[token.id].first += token.weight;
+      }
+  }
   // sort token_count_list by tokenfrequency
   std::sort(token_count_list.begin(), token_count_list.end(), pairComparator);
 
@@ -84,9 +87,9 @@ void Converter<Label>::assignFrequencyIdentifiers(
 
   // substitute the tokenIDs with frequencyIDs
   for(auto& record: sets_collection) {
-    for(std::size_t i = 0; i < record.second.size(); ++i)
-      record.second[i].id = tokenmaplist[record.second[i].id];
-
+    for(std::size_t i = 0; i < record.second.size(); ++i) {
+        record.second[i].id = tokenmaplist[record.second[i].id];
+    }
     // sort integers of a record ascending
     std::sort(record.second.begin(), record.second.end(), LabelSetElementComparator);
 

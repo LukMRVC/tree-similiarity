@@ -87,10 +87,23 @@ public:
   long int get_number_of_pre_candidates() const;
   /// Sets the number of precandidates.
   void set_number_of_pre_candidates(const long int pc);
-  /// Returns the number of precandidates.
+
+        /// Returns the number of precandidates.
   ///
   /// \return The number of lookups in the inverted list.
   long int get_number_of_il_lookups() const;
+
+    /// Given two sets of nodes, the structural mapping identifies the number of
+    /// tau-valid node pairs.
+    ///
+    /// \param sv_r All nodes with a specific label in set r.
+    /// \param sv_s All nodes with a specific label in set s.
+    /// \param distance_threshold Given distance threshold.
+    /// \return number of tau-valid node pairs in sv_r and sv_s.
+    int structural_mapping(
+            label_set_converter::LabelSetElement& sv_r,
+            label_set_converter::LabelSetElement& sv_s,
+            const double distance_threshold);
 // Member variables.
 private:
   /// Number of precandidates.
@@ -99,17 +112,7 @@ private:
   long int il_lookups_;
 // Member functions.
 private:
-  /// Given two sets of nodes, the structural mapping identifies the number of 
-  /// tau-valid node pairs.
-  ///
-  /// \param sv_r All nodes with a specific label in set r.
-  /// \param sv_s All nodes with a specific label in set s.
-  /// \param distance_threshold Given distance threshold.
-  /// \return number of tau-valid node pairs in sv_r and sv_s.
-  int structural_mapping(
-    label_set_converter::LabelSetElement& sv_r, 
-    label_set_converter::LabelSetElement& sv_s,
-    const double distance_threshold);
+
   /// Verify for a given candidate pair r and s if it passes the structural filter.
   ///
   /// \param r First set of the candidate pair.
