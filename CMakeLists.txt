@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.7)
 
 # Create the project.
 project(tree_similarity)
-
+find_package(OpenMP REQUIRED)
 # Copied from https://stackoverflow.com/questions/14933172/how-can-i-add-a-minimum-compiler-version-requisite/14934542#14934542
 # Use "export CXX=clang++-3.9" to point cmake to use clang.
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -38,12 +38,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 #Add flags applicable to all compilers
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fopenmp")
 
 #Add compiler specific flags
 if(CMAKE_COMPILER_IS_GNUCXX)
     message(STATUS "GCC detected, adding compile flags")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wpedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wpedantic -fopenmp")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 # It's possible to set compiler-specific flags.
@@ -56,6 +56,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 # One can also use include_directories() to add all header files which would be
 # added to executables created in CMakeLists files in subdirectories.
 add_library(TreeSimilarity INTERFACE)
+target_link_libraries(TreeSimilarity INTERFACE OpenMP::OpenMP)
+
 target_include_directories(TreeSimilarity INTERFACE
   src/node
   src/label
@@ -81,6 +83,7 @@ target_include_directories(TreeSimilarity INTERFACE
   src/ted_lb
   src/json
 )
+
 
 # For using add_test().
 include(CTest)

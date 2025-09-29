@@ -159,10 +159,16 @@ void CandidateIndex::lookup(
   std::vector<candidate_index::SetData> set_data(sets_collection.size());
   // position in label set while processing r
   std::size_t p = 0;
+  auto i = 0;
 
   // iterate through all sets in the given collection
   std::vector<std::pair<int, std::vector<label_set_converter::LabelSetElement>>>::iterator r_it = sets_collection.begin();
   for (; r_it != sets_collection.end(); ++r_it) {
+      i += 1;
+
+      if (i % 10'000 == 0) {
+          std::cout << "Looked up " << i << " out of " << sets_collection.size() << "\n";
+      }
     std::pair<int, std::vector<label_set_converter::LabelSetElement>>& r_pair = *r_it; // dereference iterator to current set once
     std::vector<label_set_converter::LabelSetElement> r = r_pair.second; // dereference iterator to current set once
     int r_id = r_it - sets_collection.begin(); // identifier for r (line number)
